@@ -2,7 +2,6 @@ import { db, Comment, Blogs } from "astro:db";
 
 export default async function seed() {
   console.log("Seeding data");
-  console.log("db", db);
   await db.insert(Comment).values([
     { id: 1, author: "amrik", body: "Hope you like Astro DB!" },
     { id: 2, author: "aman", body: "Enjoy!" },

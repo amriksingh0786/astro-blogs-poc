@@ -7,7 +7,6 @@ const blogPosts = await db
   .select()
   .from(Blogs)
   .leftJoin(Comment, eq(Blogs.commentId, Comment.id));
-console.log(blogPosts);
 ---
 
 <Layout>

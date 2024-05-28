@@ -1,0 +1,128 @@
+---
+import { db, Comment, Blogs } from "astro:db";
+import "../styles/globals.css";
+// Handle form submission
+console.log("Admin page loaded");
+if (Astro.request.method === "POST") {
+    console.log("POST request received", Astro.request);
+    try{
+
+        console.log("POST request received");
+      const formData = await Astro.request.formData();
+      const title = formData.get("title");
+      const blogBody = formData.get("blogBody");
+      const commentAuthor = formData.get("commentAuthor");
+      const commentBody = formData.get("commentBody");
+    
+
+
+  if (
+    typeof title === "string" &&
+    typeof blogBody === "string" &&
+    typeof commentAuthor === "string" &&
+    typeof commentBody === "string"
+  ) {
+    // Insert the comment first
+    const [comment] = await db
+      .insert(Comment)
+      .values({ author: commentAuthor, body: commentBody })
+      .returning();
+
+    // Insert the blog post with the reference to the comment
+    await db.insert(Blogs).values({
+      title,
+      blogBody,
+      commentId: comment.id,
+    });
+
+    // Redirect to the same page to avoid resubmission
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: "/admin",
+      },
+    });
+  }
+}
+catch(e){
+    console.log(e);
+}
+}
+
+// Fetch comments to render
+const comments = await db.select().from(Comment);
+---
+
+<html>
+  <head>
+    <title>Admin - Add Blog</title>
+    <style>
+      form {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 1rem;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+      form div {
+        margin-bottom: 1rem;
+      }
+      form label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      form input,
+      form textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      form button {
+        padding: 0.5rem 1rem;
+        background-color: #0073e6;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      form button:hover {
+        background-color: #005bb5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Add Blog Post</h1>
+      <form method="POST" style="display: grid; gap: 1rem;">
+        <div>
+          <label for="title">Title</label>
+          <input type="text" id="title" name="title" required />
+        </div>
+        <div>
+          <label for="blogBody">Blog Body</label>
+          <textarea id="blogBody" name="blogBody" rows="5" required></textarea>
+        </div>
+        <div>
+          <label for="commentAuthor">Comment Author</label>
+          <input type="text" id="commentAuthor" name="commentAuthor" required />
+        </div>
+        <div>
+          <label for="commentBody">Comment Body</label>
+          <textarea id="commentBody" name="commentBody" rows="3" required></textarea>
+        </div>
+        <button type="submit">Add Blog Post</button>
+      </form>
+      
+      <h2>Existing Comments</h2>
+      <ul>
+        {comments.map(comment => (
+          <li key={comment.id}>
+            <strong>{comment.author}:</strong> {comment.body}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </body>
+</html>

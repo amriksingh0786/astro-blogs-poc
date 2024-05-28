@@ -1,0 +1,14 @@
+---
+import "../styles/component.css";
+export interface Props {
+  author: string;
+  body: string;
+}
+
+const { author, body } = Astro.props;
+---
+
+<div class="comment">
+  <p><strong>{author}</strong></p>
+  <p>{body}</p>
+</div>

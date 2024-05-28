@@ -1,0 +1,21 @@
+---
+import Comment from './Comment.astro';
+import '../styles/component.css';
+
+export interface Props {
+  title: string;
+  blogBody: string;
+  comment: {
+    author: string;
+    body: string;
+  };
+}
+
+const { title, blogBody, comment } = Astro.props;
+---
+
+<article>
+  <h2>{title}</h2>
+  <div>{blogBody}</div>
+  <Comment author={comment.author} body={comment.body} />
+</article>

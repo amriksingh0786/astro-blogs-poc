@@ -1,16 +1,29 @@
 ---
-
+import { db, Blogs, Comment, column, eq } from "astro:db";
+import BlogPost from "../components/BlogPost.astro";
+import Layout from "../layouts/Layout.astro";
+// Fetch blog posts with comments
+const blogPosts = await db
+  .select()
+  .from(Blogs)
+  .leftJoin(Comment, eq(Blogs.commentId, Comment.id));
+console.log(blogPosts);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout>
+  <div class="container">
+    <h1>Blog</h1>
+    {
+      blogPosts.map((blog) => (
+        <BlogPost
+          title={blog.Blogs.title}
+          blogBody={blog.Blogs.blogBody}
+          comment={{
+            author: blog.Comment?.author || "Anonymous",
+            body: blog.Comment?.body || "No comments yet",
+          }}
+        />
+      ))
+    }
+  </div>
+</Layout>
